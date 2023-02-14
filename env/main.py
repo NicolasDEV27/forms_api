@@ -7,4 +7,4 @@ app.version = '0.0.1'
 
 @app.get('/', tags=['Home'])
 def message():
-    return HTMLResponse('Hello World')
+    return HTMLResponse('Hello world')
