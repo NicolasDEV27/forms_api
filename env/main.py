@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-app = FastAPI
+app = FastAPI()
 app.title = 'FORMS API'
 app.version = '0.0.1'
 
