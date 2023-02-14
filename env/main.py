@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
@@ -8,3 +8,7 @@ app.version = '0.0.1'
 @app.get('/', tags=['Home'])
 def message():
     return HTMLResponse('Hello world')
+
+@app.post("/login/")
+def login(username: str = Form(), password: str = Form()):
+    return {"username": username}
