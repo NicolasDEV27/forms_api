@@ -1,9 +1,11 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from config.database import Session, engine, Base 
 from models.users import User as UserModel
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
+from fastapi.encoders import jsonable_encoder
+
 
 
 app = FastAPI()
@@ -33,5 +35,13 @@ def create_user(user: User) -> dict:
     new_user = UserModel(**user.dict())
     db.add(new_user)
     db.commit()
-    return HTMLResponse('Todays date')
+    return JSONResponse(status_code=201, content={'message': 'Registro exitoso'})
+
+@app.get('/login', tags=['Users'], response_model=List[User], status_code=200)
+def get_users() -> List [User]:
+    db = Session()
+    result = db.query(UserModel).all()
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
+
+
 
