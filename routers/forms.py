@@ -1,13 +1,11 @@
 from fastapi import Query, APIRouter
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from config.database import Session
 from models.users import User as UserModel
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from fastapi.encoders import jsonable_encoder
-
-
-
+from services.users import UserService
 
 forms_router = APIRouter()
 
@@ -22,10 +20,6 @@ class User(BaseModel):
     password: str = Field(min_length=1, max_Length=20)
 
 
-@forms_router.get('/', tags=['Home'])
-def message():
-    return HTMLResponse('Todays date')
-
 @forms_router.post('/login', tags=['Login'], response_model=dict, status_code=201)
 def create_user(user: User) -> dict:
     db = Session()
@@ -37,14 +31,16 @@ def create_user(user: User) -> dict:
 @forms_router.get('/users', tags=['Users'], response_model=List[User], status_code=200)
 def get_users() -> List [User]:
     db = Session()
-    result = db.query(UserModel).all()
+    result = UserService(db).get_users()
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 
-@forms_router.get('/users/', tags=['Users'], response_model=List[User], status_code=200)
-def get_users_name( Name: str = Query(min_length=1, max_Length=20)) -> List [User]:
+@forms_router.get('/users/{Name}', tags=['Users'], response_model=User)
+def get_users_name(name: str) -> User:
     db = Session()
-    result = db.query(UserModel).filter(UserModel.Name == Name).all()
+    result = UserService(db).get_user(name)
+    if not result:
+        return JSONResponse(status_code=404, content={'message': 'User no encontrado'})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
 @forms_router.put('/users/{DNI})', tags=['Users'], response_model=dict, status_code=200)
