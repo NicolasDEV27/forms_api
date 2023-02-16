@@ -1,16 +1,19 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from config.database import Session, engine, Base 
 from models.users import User as UserModel
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from fastapi.encoders import jsonable_encoder
+from middlewares.error_handler import error_handler
 
 
 
 app = FastAPI()
 app.title = 'FORMS API'
 app.version = '0.0.1'
+
+app.add_middleware(error_handler)
 
 Base.metadata.create_all(bind=engine)
 
@@ -37,11 +40,47 @@ def create_user(user: User) -> dict:
     db.commit()
     return JSONResponse(status_code=201, content={'message': 'Registro exitoso'})
 
-@app.get('/login', tags=['Users'], response_model=List[User], status_code=200)
+@app.get('/users', tags=['Users'], response_model=List[User], status_code=200)
 def get_users() -> List [User]:
     db = Session()
     result = db.query(UserModel).all()
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
+
+
+@app.get('/users/', tags=['Users'], response_model=List[User], status_code=200)
+def get_users_name( Name: str = Query(min_length=1, max_Length=20)) -> List [User]:
+    db = Session()
+    result = db.query(UserModel).filter(UserModel.Name == Name).all()
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
+
+@app.put('/users/{DNI})', tags=['Users'], response_model=dict, status_code=200)
+def update_user(dni: int, user: User) -> dict:
+    db = Session()
+    result = db.query(UserModel).filter(UserModel.DNI == dni).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': 'User no encontrado'})
+    result.Name = user.Name
+    result.Last_names = user.Last_names
+    result.Age = user.Age
+    result.Height = user.Height
+    result.Birthday = user.Birthday
+    result.email = user.email
+    result.password = user.password
+    db.commit()
+    return JSONResponse(status_code=200, content={'message': 'User modificado'})
+
+@app.delete('/users/{DNI})', tags=['Users'], response_model=dict, status_code=200)
+def delete_user(dni: int) -> dict:
+    db = Session()
+    result = db.query(UserModel).filter(UserModel.DNI == dni).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': 'User no encontrado'})
+    db.delete(result)
+    db.commit()
+    return JSONResponse(status_code=200, content={'message': 'User eliminado exitosamente'})
+
+
+
 
 
 
