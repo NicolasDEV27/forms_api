@@ -1,4 +1,5 @@
 from models.users import User as UserModel
+from schemas.forms import User
 
 class UserService():
 
@@ -12,3 +13,9 @@ class UserService():
     def get_user(self, name):
         result = self.db.query(UserModel).filter(UserModel.Name == name).first()
         return result
+
+    def create_user(self, user: User):
+        new_user = UserModel(**user.dict())
+        self.db.add(new_user)
+        self.db.commit()
+        return 
