@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import Query, FastAPI
 from config.database import engine, Base 
 from middlewares.error_handler import error_handler
 from routers.forms import forms_router
