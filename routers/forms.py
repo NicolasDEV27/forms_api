@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 from config.database import Session
 from typing import  List
@@ -29,7 +29,7 @@ def get_users_name(name: str) -> List:
         return JSONResponse(status_code=404, content={'message': 'User no encontrado'})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
-@forms_router.get('/users/{DNI}', tags=['Users'], response_model= List)
+@forms_router.get('/users/', tags=['Users'], response_model= List)
 def get_users_DNI(dni: int) -> List:
     db = Session()
     result = UserService(db).get_user_DNI(dni)
@@ -37,7 +37,7 @@ def get_users_DNI(dni: int) -> List:
         return JSONResponse(status_code=404, content={'message': 'User no encontrado'})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
-@forms_router.put('/users/{DNI})', tags=['Users'], response_model=dict, status_code=200)
+@forms_router.put('/users/{DNI}', tags=['Users'], response_model=dict, status_code=200)
 def update_user(dni: int, user: User) -> dict:
     db = Session()
     result = UserService(db).get_user_DNI(dni)
@@ -47,7 +47,7 @@ def update_user(dni: int, user: User) -> dict:
     UserService(db).update_user(dni, user)
     return JSONResponse(status_code=200, content={'message': 'User modificado'})
 
-@forms_router.delete('/users/{DNI})', tags=['Users'], response_model=dict, status_code=200)
+@forms_router.delete('/users/{DNI}', tags=['Users'], response_model=dict, status_code=200)
 def delete_user(dni: int) -> dict:
     db = Session()
     result = UserService(db).get_user_DNI(dni)

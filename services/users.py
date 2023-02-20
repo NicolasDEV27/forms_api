@@ -15,7 +15,7 @@ class UserService():
         result = self.db.query(UserModel).filter(UserModel.Name == name).first()
         return result
 
-    def get_user_DNI(self, dni):
+    def get_user_DNI(self, dni: int):
         result = self.db.query(UserModel).filter(UserModel.DNI == dni).first()
         return result
 
